@@ -1,26 +1,21 @@
 export class MotoristasService {
-    constructor(repository) {
+    constructor(repository, entregasRepository) {
         this.repository = repository;
+        this.entregasRepository = entregasRepository;
     }
 
     criar(dados) {
         const { nome, cpf } = dados;
+        if (!nome || !cpf) throw { status: 400, erro: "Nome e CPF obrigatórios" };
+        if (this.repository.buscarPorCpf(cpf)) throw { status: 409, erro: "CPF duplicado" };
 
-        if (!nome || !cpf) {
-            throw { status: 400, erro: "Nome e CPF são obrigatórios" };
-        }
+        return this.repository.salvar({ nome, cpf, status: 'ATIVO' });
+    }
 
-        const duplicata = this.repository.buscarPorCpf(cpf);
-        if (duplicata) {
-            throw { status: 409, erro: "CPF já cadastrado" };
-        }
-
-        const novoMotorista = {
-            nome,
-            cpf,
-            status: 'ATIVO' // Regra de negócio exigida pelo autograder
-        };
-
-        return this.repository.salvar(novoMotorista);
+    // NOVA FUNÇÃO:
+    listarEntregas(motoristaId) {
+        const motorista = this.repository.buscarPorId(motoristaId);
+        if (!motorista) throw { status: 404, erro: "Motorista não encontrado" };
+        return this.entregasRepository.buscarPorMotoristaId(motoristaId);
     }
 }

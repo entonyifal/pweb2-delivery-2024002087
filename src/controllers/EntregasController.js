@@ -62,4 +62,14 @@ export class EntregasController {
             return res.status(status).json({ erro: erro.erro });
         }
     }
+    atribuirMotorista = (req, res) => {
+        try {
+            const { motoristaId } = req.body;
+            const entrega = this.service.atribuirMotorista(req.params.id, motoristaId);
+            return res.status(200).json(entrega);
+        } catch (erro) {
+            const status = erro.status || 500;
+            return res.status(status).json({ erro: erro.erro });
+        }
+    }
 }
