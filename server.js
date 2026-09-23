@@ -6,7 +6,8 @@
 // Comece implementando as camadas em src/ (veja o README) e vá rodando o
 // autograder: `npm run check` (com o servidor no ar) ou pela aba Actions no push.
 import express from 'express';
-// import { criarRotas } from './src/routes/index.js';  // <- descomente quando criar as rotas
+import entregasRoutes from './src/routes/EntregasRoutes.js';
+import motoristasRoutes from './src/routes/motoristasRoutes.js'; // <-- ADICIONADO: Importa as rotas de motoristas
 
 const app = express();
 app.use(express.json());
@@ -14,8 +15,9 @@ app.use(express.json());
 // Health check exigido pelo contrato de execução (não remova).
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// TODO: monte aqui o roteador da sua API (composition root em src/routes):
-// app.use('/api', criarRotas());
+// Montagem dos roteadores da API
+app.use('/api/entregas', entregasRoutes);
+app.use('/api/motoristas', motoristasRoutes); // <-- ADICIONADO: Liga o caminho /api/motoristas ao novo ficheiro
 
 // 404 para rotas não mapeadas (mantenha por último, antes do listen).
 app.use((req, res) => res.status(404).json({ erro: 'recurso não encontrado' }));
