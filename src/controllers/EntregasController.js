@@ -1,6 +1,6 @@
 export class EntregasController {
     constructor(service) {
-        this.service = service; // Recebe o service via injeção
+        this.service = service;
     }
 
     criar = (req, res) => {
@@ -57,16 +57,6 @@ export class EntregasController {
         try {
             const entrega = this.service.buscarPorId(req.params.id);
             return res.status(200).json(entrega.historico);
-        } catch (erro) {
-            const status = erro.status || 500;
-            return res.status(status).json({ erro: erro.erro });
-        }
-    }
-    atribuirMotorista = (req, res) => {
-        try {
-            const { motoristaId } = req.body;
-            const entrega = this.service.atribuirMotorista(req.params.id, motoristaId);
-            return res.status(200).json(entrega);
         } catch (erro) {
             const status = erro.status || 500;
             return res.status(status).json({ erro: erro.erro });
