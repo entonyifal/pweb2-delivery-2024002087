@@ -1,39 +1,34 @@
 export class EntregasService {
-    constructor(repository) {
-        this.repository = repository; 
+    constructor(repository, motoristaRepository) {
+        this.repository = repository;
+        this.motoristaRepository = motoristaRepository;
     }
 
     criar(dados) {
-        const { descricao, origem, destino } = dados;
-
-        if (!descricao || !origem || !destino || origem === destino) {
-            throw { status: 400, erro: "Dados inválidos ou origem igual ao destino" };
+        if (dados.origem === dados.destino) {
+            throw { status: 400, erro: "Origem e destino não podem ser iguais" };
         }
 
-        const duplicata = this.repository.buscarPorDescricaoOrigemDestino(descricao, origem, destino);
-        if (duplicata) {
-            throw { status: 409, erro: "Já existe uma entrega ativa com estes dados" };
+        const entregasAtivas = this.repository.database.entregas.filter(e => e.status !== 'ENTREGUE' && e.status !== 'CANCELADA');
+        const duplicada = entregasAtivas.find(e => e.descricao === dados.descricao);
+        
+        if (duplicada) {
+            throw { status: 409, erro: "Entrega duplicada ativa" };
         }
 
         const novaEntrega = {
-            descricao,
-            origem,
-            destino,
+            ...dados,
             status: 'CRIADA',
-            motoristaId: null,
-            historico: [{
-                data: new Date().toISOString(),
-                descricao: "Entrega criada"
-            }]
+            historico: [{ status: 'CRIADA', data: new Date().toISOString() }]
         };
 
         return this.repository.salvar(novaEntrega);
     }
 
-    listarTodas(statusFiltro) {
-        let entregas = this.repository.buscarTodas();
-        if (statusFiltro) {
-            entregas = entregas.filter(e => e.status === statusFiltro);
+    listarTodas(status) {
+        let entregas = this.repository.database.entregas;
+        if (status) {
+            entregas = entregas.filter(e => e.status === status);
         }
         return entregas;
     }
@@ -48,9 +43,9 @@ export class EntregasService {
 
     avancarStatus(id) {
         const entrega = this.buscarPorId(id);
-
+        
         if (entrega.status === 'ENTREGUE' || entrega.status === 'CANCELADA') {
-            throw { status: 422, erro: "Não é possível avançar uma entrega já finalizada" };
+            throw { status: 422, erro: "Não é possível avançar o status desta entrega" };
         }
 
         if (entrega.status === 'CRIADA') {
@@ -59,27 +54,38 @@ export class EntregasService {
             entrega.status = 'ENTREGUE';
         }
 
-        entrega.historico.push({
-            data: new Date().toISOString(),
-            descricao: `Status avançado para ${entrega.status}`
-        });
-
-        return this.repository.salvar(entrega);
+        entrega.historico.push({ status: entrega.status, data: new Date().toISOString() });
+        return entrega;
     }
 
     cancelar(id) {
         const entrega = this.buscarPorId(id);
-
+        
         if (entrega.status === 'ENTREGUE' || entrega.status === 'CANCELADA') {
-            throw { status: 422, erro: "Não é possível cancelar esta entrega" };
+            throw { status: 422, erro: "Não é possível cancelar uma entrega já finalizada" };
         }
 
         entrega.status = 'CANCELADA';
-        entrega.historico.push({
-            data: new Date().toISOString(),
-            descricao: "Entrega cancelada"
-        });
+        entrega.historico.push({ status: 'CANCELADA', data: new Date().toISOString() });
+        return entrega;
+    }
 
-        return this.repository.salvar(entrega);
+    atribuirMotorista(entregaId, motoristaId) {
+        const entrega = this.buscarPorId(entregaId);
+
+        if (entrega.status !== 'CRIADA') {
+            throw { status: 422, erro: "Só é possível atribuir motorista a entregas com status CRIADA" };
+        }
+
+        const motorista = this.motoristaRepository.buscarPorId(motoristaId);
+        if (!motorista) {
+            throw { status: 404, erro: "Motorista não encontrado" };
+        }
+        if (motorista.status !== 'ATIVO') {
+            throw { status: 400, erro: "O motorista precisa estar ATIVO" };
+        }
+
+        entrega.motoristaId = motorista.id;
+        return entrega;
     }
 }
