@@ -3,22 +3,23 @@ export class MotoristasController {
         this.service = service;
     }
 
-    criar = (req, res) => {
+    criar = async (req, res) => {
         try {
-            const motorista = this.service.criar(req.body);
-            return res.status(201).json(motorista);
+            const motoristaCriado = await this.service.criar(req.body);
+            return res.status(201).json(motoristaCriado);
         } catch (erro) {
             const status = erro.status || 500;
             return res.status(status).json({ erro: erro.erro || "Erro interno" });
         }
     }
-    listarEntregas = (req, res) => {
+
+    listarEntregas = async (req, res) => {
         try {
-            const entregas = this.service.listarEntregas(req.params.id);
+            const entregas = await this.service.listarEntregas(req.params.id, req.query.status);
             return res.status(200).json(entregas);
         } catch (erro) {
             const status = erro.status || 500;
-            return res.status(status).json({ erro: erro.erro });
+            return res.status(status).json({ erro: erro.erro || "Erro interno" });
         }
     }
 }

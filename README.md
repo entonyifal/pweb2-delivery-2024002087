@@ -52,3 +52,12 @@ src/
 
 Faça **um commit por avanço** (Conventional Commits, ex.: `feat(entregas): valida origem ≠ destino`).
 Bom trabalho! 🚀
+
+## Persistência de Dados (Prisma ORM + SQLite)
+O sistema foi evoluído para utilizar banco de dados real em substituição à memória.
+
+**Passos para execução:**
+1. Instale as dependências do projeto: `npm install`
+2. Configure as variáveis de ambiente copiando o arquivo `.env.example` para `.env`
+3. Crie o banco de dados e aplique as migrations: `npx prisma migrate dev`
+4. Inicie o servidor da aplicação: `npm start`

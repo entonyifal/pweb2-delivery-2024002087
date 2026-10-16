@@ -4,18 +4,40 @@ export class MotoristasService {
         this.entregasRepository = entregasRepository;
     }
 
-    criar(dados) {
+    async criar(dados) {
         const { nome, cpf } = dados;
-        if (!nome || !cpf) throw { status: 400, erro: "Nome e CPF obrigatórios" };
-        if (this.repository.buscarPorCpf(cpf)) throw { status: 409, erro: "CPF duplicado" };
 
-        return this.repository.salvar({ nome, cpf, status: 'ATIVO' });
+        if (!nome || !cpf) {
+            throw { status: 400, erro: "Nome e CPF são obrigatórios" };
+        }
+
+        const duplicata = await this.repository.buscarPorCpf(cpf);
+        if (duplicata) {
+            throw { status: 409, erro: "CPF já cadastrado" };
+        }
+
+        const novoMotorista = {
+            nome,
+            cpf,
+            status: 'ATIVO'
+        };
+
+        return await this.repository.criar(novoMotorista);
     }
 
-    // NOVA FUNÇÃO:
-    listarEntregas(motoristaId) {
-        const motorista = this.repository.buscarPorId(motoristaId);
-        if (!motorista) throw { status: 404, erro: "Motorista não encontrado" };
-        return this.entregasRepository.buscarPorMotoristaId(motoristaId);
+    async listarEntregas(motoristaId, statusFiltro) {
+        const motorista = await this.repository.buscarPorId(motoristaId);
+        if (!motorista) {
+            throw { status: 404, erro: "Motorista não encontrado" };
+        }
+
+        const todasEntregas = await this.entregasRepository.listarTodas();
+        let entregas = todasEntregas.filter(e => e.motoristaId === Number(motoristaId));
+        
+        if (statusFiltro) {
+            entregas = entregas.filter(e => e.status === statusFiltro);
+        }
+        
+        return entregas;
     }
 }
