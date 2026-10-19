@@ -1,7 +1,6 @@
 export class MotoristasService {
-    constructor(repository, entregasRepository) {
+    constructor(repository) {
         this.repository = repository;
-        this.entregasRepository = entregasRepository;
     }
 
     async criar(dados) {
