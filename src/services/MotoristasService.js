@@ -1,6 +1,7 @@
 export class MotoristasService {
-    constructor(repository) {
+    constructor(repository, entregasRepository) {
         this.repository = repository;
+        this.entregasRepository = entregasRepository;
     }
 
     async criar(dados) {
@@ -22,6 +23,10 @@ export class MotoristasService {
         };
 
         return await this.repository.criar(novoMotorista);
+    }
+
+    async listarTodos() {
+        return await this.repository.listarTodos();
     }
 
     async listarEntregas(motoristaId, statusFiltro) {

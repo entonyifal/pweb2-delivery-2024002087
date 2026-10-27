@@ -1,0 +1,28 @@
+<div class="card shadow-sm max-w-md mx-auto" style="max-width: 600px;">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Nova Entrega</h4>
+    </div>
+    <div class="card-body">
+        <form action="/entregas" method="POST">
+            <div class="mb-3">
+                <label for="descricao" class="form-label">Descrição</label>
+                <input type="text" class="form-control" id="descricao" name="descricao" value="<%= dadosAntigos.descricao || '' %>" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="origem" class="form-label">Origem</label>
+                <input type="text" class="form-control" id="origem" name="origem" value="<%= dadosAntigos.origem || '' %>" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="destino" class="form-label">Destino</label>
+                <input type="text" class="form-control" id="destino" name="destino" value="<%= dadosAntigos.destino || '' %>" required>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="/entregas" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success">Criar Entrega</button>
+            </div>
+        </form>
+    </div>
+</div>

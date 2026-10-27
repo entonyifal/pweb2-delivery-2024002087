@@ -3,23 +3,32 @@ export class MotoristasController {
         this.service = service;
     }
 
-    criar = async (req, res) => {
+    listar = async (req, res) => {
         try {
-            const motoristaCriado = await this.service.criar(req.body);
-            return res.status(201).json(motoristaCriado);
+            const motoristas = await this.service.listarTodos();
+            return res.render('motoristas/index', { motoristas, title: 'Motoristas - Delivery Tracker' });
         } catch (erro) {
-            const status = erro.status || 500;
-            return res.status(status).json({ erro: erro.erro || "Erro interno" });
+            req.flash('erro', "Erro ao carregar a lista de motoristas.");
+            return res.redirect('/');
         }
     }
 
-    listarEntregas = async (req, res) => {
+    novo = (req, res) => {
+        return res.render('motoristas/novo', { title: 'Novo Motorista - Delivery Tracker' });
+    }
+
+    criar = async (req, res) => {
         try {
-            const entregas = await this.service.listarEntregas(req.params.id, req.query.status);
-            return res.status(200).json(entregas);
+            await this.service.criar(req.body);
+            req.flash('sucesso', 'Motorista cadastrado com sucesso!');
+            return res.redirect('/motoristas');
         } catch (erro) {
             const status = erro.status || 500;
-            return res.status(status).json({ erro: erro.erro || "Erro interno" });
+            return res.status(status === 400 || status === 409 ? status : 500).render('motoristas/novo', {
+                title: 'Novo Motorista - Delivery Tracker',
+                mensagens_erro: [erro.erro || "Erro interno"],
+                dadosAntigos: req.body
+            });
         }
     }
 }

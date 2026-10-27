@@ -1,0 +1,72 @@
+<div class="mb-4">
+    <h2>Detalhes da Entrega #<%= entrega.id %></h2>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title"><%= entrega.descricao %></h5>
+                <p><strong>Origem:</strong> <%= entrega.origem %></p>
+                <p><strong>Destino:</strong> <%= entrega.destino %></p>
+                <p>
+                    <strong>Status:</strong>
+                    <span class="badge bg-<%= entrega.status === 'ENTREGUE' ? 'success' : (entrega.status === 'CANCELADA' ? 'danger' : 'warning') %>">
+                        <%= entrega.status %>
+                    </span>
+                </p>
+                <p><strong>ID do Motorista:</strong> <%= entrega.motoristaId || 'Nenhum' %></p>
+            </div>
+            <div class="card-footer bg-white d-flex gap-2 flex-wrap">
+                <% if (entrega.status !== 'ENTREGUE' && entrega.status !== 'CANCELADA') { %>
+                    <form action="/entregas/<%= entrega.id %>/avancar?_method=PATCH" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Avançar Status</button>
+                    </form>
+                    <form action="/entregas/<%= entrega.id %>/cancelar?_method=PATCH" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Cancelar Entrega</button>
+                    </form>
+                <% } %>
+                
+                <% if (entrega.status === 'CRIADA') { %>
+                    <form action="/entregas/<%= entrega.id %>/atribuir?_method=PATCH" method="POST" class="d-inline d-flex gap-2 align-items-center w-100 mt-2">
+                        <select name="motoristaId" class="form-select" required>
+                            <option value="" disabled selected>Selecionar Motorista...</option>
+                            <% motoristasAtivos.forEach(m => { %>
+                                <option value="<%= m.id %>"><%= m.nome %> (CPF: <%= m.cpf %>)</option>
+                            <% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-success">Atribuir</button>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h4>Histórico</h4>
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (entrega.historico && entrega.historico.length > 0) { %>
+                            <% entrega.historico.forEach(h => { %>
+                                <tr>
+                                    <td><%= new Date(h.data).toLocaleString('pt-BR') %></td>
+                                    <td><span class="badge bg-secondary"><%= h.status %></span></td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr><td colspan="2" class="text-center text-muted">Sem histórico</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

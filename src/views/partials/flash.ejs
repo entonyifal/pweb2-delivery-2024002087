@@ -1,0 +1,17 @@
+<% if (mensagens_sucesso && mensagens_sucesso.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <% mensagens_sucesso.forEach(function(msg) { %>
+            <div><%= msg %></div>
+        <% }) %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<% if (mensagens_erro && mensagens_erro.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <% mensagens_erro.forEach(function(msg) { %>
+            <div><%= msg %></div>
+        <% }) %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>

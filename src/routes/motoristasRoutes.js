@@ -12,7 +12,8 @@ const entregasRepo = new EntregasRepositoryPrisma();
 const service = new MotoristasService(repository, entregasRepo);
 const controller = new MotoristasController(service);
 
+router.get('/', controller.listar);
+router.get('/novo', controller.novo);
 router.post('/', controller.criar);
-router.get('/:id/entregas', controller.listarEntregas); 
 
 export default router;
